@@ -3,6 +3,11 @@ NTCore's Phoenix Protector offers a "string encryption" feature, which, as its n
 
 Even after searching on the internet for ten minutes, I couldn't find a Phoenix string decryptor;<br>that's why I made one.
 
+# Static or dynamic ? Which one should I pick ?
+![enter image description here](https://i.imgur.com/phOeooD.png)
+
+If you believe the software you're analyzing may contain malware code, then you should pick static analysis, because dynamic analysis will load the assembly on your machine, causing possible damage.
+
 # How do I find a "method token" ?
 Once you'll start this decryptor, it will ask you for a "method token": it's basically just the token of the decryption method. But how do you find it ? Here's a step-by-step guide :
 <h2>1 - Open your file into DnSpy and find an encrypted string</h2>
