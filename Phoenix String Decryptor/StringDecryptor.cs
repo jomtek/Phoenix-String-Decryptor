@@ -19,17 +19,21 @@ namespace Phoenix_String_Decryptor
         private ModuleDefMD module;
         private string modulePath;
         private string methodToken;
+        private bool dynamicAnalysis;
+        private Assembly assembly;
 
-        public StringDecryptor(string modulePath, string methodToken)
+        public StringDecryptor(string modulePath, string methodToken, bool dynamicAnalysis, Assembly assembly)
         {
             this.modulePath = modulePath;
             this.methodToken = methodToken;
+            this.dynamicAnalysis = dynamicAnalysis;
+            this.assembly = assembly;
         }
 
         private bool IsTypeAnalyzable(TypeDef moduleType) =>
             moduleType.HasMethods && !moduleType.Namespace.Contains(".My");
 
-        private string PhoenixAlgorithm(string inputStr)
+        private string PhoenixAlgorithm(string inputStr) // for static analysis
         {
             int length = inputStr.Length;
             char[] array = new char[length];
@@ -68,8 +72,19 @@ namespace Phoenix_String_Decryptor
                             instruction.OpCode = OpCodes.Nop;
 
                             Instruction ldstrInstr = method.Body.Instructions[counter - 1];
-                            ldstrInstr.Operand = PhoenixAlgorithm((string)ldstrInstr.Operand);
+                            string encryptedString = (string)ldstrInstr.Operand;
+                            string resolvedString;
 
+                            if (dynamicAnalysis)
+                            {
+                                resolvedString =
+                                    (string)assembly.ManifestModule.ResolveMethod(calledMethod.MDToken.ToInt32()).Invoke(null, new object[] { encryptedString });
+                            } else
+                            {
+                                resolvedString = PhoenixAlgorithm(encryptedString);
+                            }
+
+                            ldstrInstr.Operand = resolvedString;
                             decryptedStrings++;
                         }
                     }

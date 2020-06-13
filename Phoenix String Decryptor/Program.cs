@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Reflection;
 
 namespace Phoenix_String_Decryptor
 {
@@ -15,9 +16,12 @@ namespace Phoenix_String_Decryptor
             while (true)
             {
                 Console.Clear();
+                Console.Title = "Phoenix String Decryptor (by Jomtek and Mindsystemm)";
 
                 string modulePath = "";
                 string methodToken = "";
+                bool dynamicAnalysis = true;
+                Assembly assembly = null;
 
                 try
                 {
@@ -30,6 +34,25 @@ namespace Phoenix_String_Decryptor
                     Environment.Exit(0);
                 }
 
+                // Huge thanks to https://github.com/MindSystemm
+                try
+                {
+                    assembly = Assembly.LoadFrom(args[0]);
+                }
+                catch
+                {
+                    Console.WriteLine("[Assembly load failed, static analysis chosen]");
+                    dynamicAnalysis = false;
+                }
+
+                if (dynamicAnalysis)
+                {
+                    Console.Write("Do you want to use dynamic analysis (Y/N): ");
+                    dynamicAnalysis = Console.ReadLine().ToUpper() == "Y";
+                    Console.Title += " (" + (dynamicAnalysis ? "dynamic" : "static") + ")";
+                }
+
+
                 Console.Write("Method token : ");
                 methodToken = Console.ReadLine().ToUpper();
 
@@ -38,12 +61,12 @@ namespace Phoenix_String_Decryptor
 
                 if (methodToken.Length != 8)
                 {
-                    Console.WriteLine("Invalid method token...");
+                    Console.WriteLine("Error : invalid method token...");
                     Thread.Sleep(700);
                     continue;
                 }
 
-                StringDecryptor myDecryptor = new StringDecryptor(modulePath, methodToken);
+                StringDecryptor myDecryptor = new StringDecryptor(modulePath, methodToken, dynamicAnalysis, assembly);
 
                 myDecryptor.OpenModule();
 
